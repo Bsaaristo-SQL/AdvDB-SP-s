@@ -1,0 +1,949 @@
+use master 
+go
+
+drop database if exists SlumLordRentalsSaaristoAsg10
+go
+
+create database SlumLordRentalsSaaristoAsg10
+go
+
+use SlumLordRentalsSaaristoAsg10
+go
+
+/****** Object:  Table [dbo].[Rental]    Script Date: 2/21/2018 11:18:06 AM ******/
+
+-- New syntax in SQL Server 2016... Who would have thunk it?
+drop  table if exists Property
+go
+
+CREATE TABLE Property(
+	ID int IDENTITY(1,1) NOT NULL,
+	Address varchar(50) NULL,
+	City varchar(25) NULL,
+	State varchar(2) NULL,
+	Zip varchar(10) NULL,
+	Price money NULL,
+	DescriptionBrief varchar(60) NULL,
+	DescriptionFull varchar(5000) NULL,
+	Bathrooms tinyint default(0) NULL,
+	Bedrooms tinyint default(0) NULL,
+	OnsiteParking bit default(0) NULL,
+	OnsiteLaundry bit default(0) NULL,
+	DateAvailable datetime2(2) NULL,
+	DateCreated datetime2(2) default getdate(),
+	DateUpdated datetime2(2) NULL,
+	StatusTypeID tinyint default 1,
+	AddedByEmployeeID int null
+)
+go
+-- Add some sample data
+	
+drop table if exists statustype
+go
+
+CREATE TABLE StatusType(
+	[ID] [tinyint] IDENTITY NOT NULL,
+	[Description] [varchar](20) NULL,
+	)
+go
+
+drop table if exists Tenant
+go
+
+CREATE TABLE Tenant(
+	ID int IDENTITY NOT NULL,
+	FirstName varchar(25) NULL,
+	LastName varchar(25) NULL,
+	Email varchar(100) NULL,
+	Phone varchar(25) NULL,
+	StatusTypeID tinyint default 1,
+	DateAdded datetime2(2)   default getdate(),
+	DateUpdated datetime2(2) null,
+	AddedByEmployeeID int null
+
+	)
+go
+
+drop table if exists Lease
+go
+
+CREATE TABLE Lease(
+	 ID int IDENTITY NOT NULL,
+	 PropertyID int not NULL,
+	 TenantID int not null,
+	 Description varchar(100) null,
+	 DateLeaseStarted datetime2(2) null,
+	 DateLeaseEnds datetime2(2) null,
+	 MonthlyRate money null,
+	 Notes varchar(1000) null,
+	 StatusTypeID tinyint default 1,
+	 DateAdded datetime2(2) default getdate(),
+	 DateUpdated datetime2(2) null,
+	 AddedByEmployeeID int null
+
+	)
+go
+
+drop table if exists Appointment
+go
+
+CREATE TABLE Appointment(
+	 ID int IDENTITY NOT NULL,
+	 PropertyID int not NULL,
+	 TenantID int not null,
+	 AppStatusID tinyint default 1,
+	 AppointmentResultID tinyint default 1,
+	 DescriptionPost varchar(100) null,
+	 Results varchar(1000) null,
+	 DateAdded datetime2(2) default getdate(),
+	 DateUpdated datetime2(2) null
+	)
+go
+
+drop table if exists AppointmentResultType
+go
+
+CREATE TABLE AppointmentResultType(
+	 ID int IDENTITY NOT NULL,
+	 Results varchar(1000) null,
+	)
+go
+
+drop table if exists Employee
+go
+
+CREATE TABLE Employee(
+	 ID int IDENTITY NOT NULL,
+     FirstName varchar(25) null,
+	 LastName varchar(25) null,
+	 Email varchar(100) null,
+     DateAdded datetime2(2) null,
+	 DateUpdated datetime2(2) null,
+	 StatusTypeID tinyint not null
+	)
+go
+
+drop table if exists LogProperty
+go
+
+CREATE TABLE LogProperty(
+	 ID int IDENTITY NOT NULL,
+     RecordID int not null,
+	 EmployeeID int not null,
+	 ChangeType char(1) not null,
+	 DateAdded datetime2(2)default getdate()
+	)
+go
+
+drop table if exists LogTenant
+go
+
+CREATE TABLE LogTenant(
+	 ID int IDENTITY NOT NULL,
+     RecordID int not null,
+	 EmployeeID int not null,
+	 ChangeType char(1) not null,
+	 DateAdded datetime2(2) default getdate()
+	)
+go
+
+drop table if exists LogLease
+go
+
+CREATE TABLE LogLease(
+	 ID int IDENTITY NOT NULL,
+     RecordID int not null,
+	 EmployeeID int not null,
+	 ChangeType char(1) not null,
+	 DateAdded datetime2(2) default getdate()
+	)
+go
+
+
+
+insert into StatusType
+(Description)
+values
+  ('Active')
+go
+
+insert into StatusType
+(Description)
+values
+  ('Deleted')
+go
+Insert into Property
+ ([Address],[City],[State],[Zip],[Price],[DescriptionFull],[StatusTypeID])
+  values 
+    ( '1062 Tamarack Pl','New Richmond','WI', 54017 ,1295,'2 beds 1.5 baths 1,272 sqft. One level living at it''s best. This attractive home features 2 bedrooms, 2 baths, all appliances, and a gas fireplace. Let''s see this home today! ', 1)
+
+Insert into Property
+ ([Address],[City],[State],[Zip],[Price],[DescriptionFull],[StatusTypeID])
+  values 
+	('1600 Pennsylvania Ave NW', 'Washington','DC',20006,397817836
+     ,'Home to every American president except George Washington - who chose the site - the White House is rich in history and tradition. Known as "The People''s House", the complex is made up of the Executive Residence flanked by colonnades that connect to the West Wing and East Wing. The six-story Executive Residence serves as the president''s living quarters and entertaining area. Notable rooms include the Diplomatic Reception Room where President Franklin D. Roosevelt held fireside chats, Lincoln Bedroom that was once the namesake''s office, East Room which hosts large ceremonies and State Dining Room for formal dinners. The impressive kitchen is equipped to serve dinner for up to 140 guests and hors d''oeuvres to over 1,000. The First Family enjoys the top two floors as its private living area. These floors are altered to accommodate the needs of each new president. In addition to many bedrooms, you''ll find a sun room, music room, game room and gym. Also within the house is a library, a doctor''s office, flower and carpenter shops, and a bowling alley. Head to the East Wing, past the 40-seat Family Theater to the offices of the First Lady, the White House social secretary and correspondence staff. On the opposite side of the Executive Residence is the West Wing. This is the operations hub of the president''s top staff, complete with the press briefing room and the famous Oval Office. The complex sits on 18 meticulously landscaped acres, including the North and South Lawns, a putting green, two fountains, the Rose Garden and Jacqueline Kennedy Garden. While public White House tours are limited, anyone can appreciate the beauty of the grounds from the bordering streets.'
+     ,1)
+
+Insert into Property
+ ([Address],[City],[State],[Zip],[Price],[DescriptionFull],[StatusTypeID])
+  values 
+	('101 Wall Str #18','New York','NY',10005,59980000
+     ,'6 beds 5 baths 3,074 sqft, MASSIVE FULL FLOOR 6BDR/ 5BTH CONDO HOME...This stunning 3,074sf, never lived-in residence, occupies the whole 18th floor with luminant light through a wall of windows facing North and East. Enjoy sunsets from the corner 34'' long living space with dining alcove and views of the East River and Brooklyn. 
+The interiors were gracefully designed by internationally recognized Dutch designer Piet Boon and showcases his talent of blending timeless design through the use of durable and rich… '
+     ,1)
+go
+
+Insert into Employee
+ (FirstName,LastName,Email,DateAdded,DateUpdated,StatusTypeID)
+  values 
+('Andy', 'Bangsberg', 'andy.bangsberg@witc.edu',getdate(),getdate(), 1),
+('Brian', 'Saaristo', 'my@school.email',getdate(), getdate(),1)
+go
+
+-- Just to see the data
+
+
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+	create or alter function fnGetEmployeeIDFromEmail
+	(
+	    @EmployeeEmail varchar(100)
+	)
+	returns int
+	as
+	begin
+    declare  @EmployeeID int = -1
+	select top 1 @EmployeeID = e.ID from Employee e
+	where e.Email = @EmployeeEmail
+	return @EmployeeID
+	end
+	go
+
+	CREATE or alter PROCEDURE spLogTenantInsert
+     @RecordID int = null,
+	 @EmployeeID int = null,
+	 @ChangeType char(1) = null
+
+AS
+BEGIN
+
+	SET NOCOUNT ON;
+	insert into LogTenant
+	(RecordID, EmployeeID, ChangeType)
+	values
+	(@RecordID, @EmployeeID, @ChangeType)
+END
+GO 
+
+CREATE or alter PROCEDURE spPropertyInsert 
+	@Address varchar(50) =null ,
+	@City varchar(25) = null, 
+	@State varchar(2)=null, 
+	@Zip varchar (10)=null, 
+	@Price money=null,
+	@descriptionbrief varchar(60)=null,
+	@Descriptionfull varchar(5000)=null, 
+	@bathrooms tinyint =null,
+	@bedrooms tinyint=null,
+	@onsiteparking bit=null,
+	@onsitelaundry bit=null,
+	@DateAvailable datetime2(2)=null,
+	@EmployeeEmailAddress varchar(100) = '',
+
+	@ID int output
+	as
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+	select @ID = -1
+	declare @employeeID int = -1
+	select @employeeID = dbo.fnGetEmployeeIDFromEmail(@EmployeeEmailAddress)
+
+	if (@employeeID > 0)
+	   begin
+	           
+
+			   insert into Property
+			   (Address,City,State,Zip,Price,DescriptionBrief,DescriptionFull,Bathrooms,Bedrooms,OnsiteParking,OnsiteLaundry,DateAvailable)
+			   values
+			   (@Address,@City,@State,@Zip,@Price,@DescriptionBrief,@DescriptionFull,@Bathrooms,@Bedrooms,@OnsiteParking,@OnsiteLaundry,@DateAvailable)
+
+			select @ID = SCOPE_IDENTITY();
+
+			exec spLogPropertyInsert @ID, 'I', @employeeID
+		end
+	else
+	      begin 
+		     declare @ErrorMessage varchar(100)
+			 set @ErrorMessage = 'COULD NOT FIND EmployeeID for email: "' + @EmployeeEmailAddress + '"'
+			 raiserror (@ErrorMessage ,16,1);
+		 end
+
+    return @ID;
+END
+GO
+
+
+CREATE or alter PROCEDURE spLeaseInsert 
+	@PropertyID int =null,
+	@TenantID int = null,
+	@Description varchar(100) =null,
+	@DateLEaseStarted datetime2(2)=null,
+    @DateLeaseEnds datetime2(2)= null,
+	@MonthlyRate money =null,
+    @Notes varchar(1000)= null,
+	@StatusTypeID tinyint =null,
+    @DateUpdated datetime2(2) =null,
+	@EmployeeEmailAddress varchar(100) = '',
+	@ID int output
+	as
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+	select @ID = -1
+	declare @employeeID int = -1
+	select @employeeID = dbo.fnGetEmployeeIDFromEmail(@EmployeeEmailAddress)
+
+	if (@employeeID > 0)
+	   begin
+	           
+
+			   insert into Lease
+			   (PropertyID,TenantID,Description,DateLeaseStarted,DateLeaseEnds,MonthlyRate,Notes,StatusTypeID,DateUpdated,AddedByEmployeeID)
+			   values
+			   (@PropertyID,@TenantID,@Description,@DateLEaseStarted,@DateLeaseEnds,@MonthlyRate,@Notes,@StatusTypeID,@DateUpdated,@employeeID)
+
+			select @ID = SCOPE_IDENTITY();
+
+			exec spLogLeaseInsert @ID, 'I', @employeeID
+		end
+	else
+	      begin 
+		     declare @ErrorMessage varchar(100)
+			 set @ErrorMessage = 'COULD NOT FIND EmployeeID for email: "' + @EmployeeEmailAddress + '"'
+			 raiserror (@ErrorMessage ,16,1);
+		 end
+
+    return @ID;
+END
+GO 
+
+CREATE or alter PROCEDURE spAppointmentInsert
+	 @PropertyID int = NULL,
+	 @TenantID int = null,
+	 @AppointmentResultID tinyint =null,
+	 @DescriptionPost varchar(100)= null,
+	 @Results varchar(1000)= null
+	as
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+	insert into Appointment
+	(PropertyID,TenantID, AppointmentResultID,DescriptionPost,Results)
+	values
+	(@PropertyID,@TenantID,@AppointmentResultID,@DescriptionPost,@Results)
+
+	select SCOPE_IDENTITY()
+	
+    -- Insert statements for procedure here
+
+END
+go
+
+CREATE or alter PROCEDURE spLogPropertyInsert
+     @RecordID int = null,
+	 @EmployeeID int = null,
+	 @ChangeType char(1) = null
+
+AS
+BEGIN
+
+	SET NOCOUNT ON;
+	insert into LogProperty
+	(RecordID, EmployeeID, ChangeType)
+	values
+	(@RecordID, @EmployeeID, @ChangeType)
+END
+GO 
+
+CREATE or alter PROCEDURE spLogLeaseInsert
+     @RecordID int = null,
+	 @EmployeeID int = null,
+	 @ChangeType char(1) = null
+
+AS
+BEGIN
+
+	SET NOCOUNT ON;
+	insert into LogLease
+	(RecordID, EmployeeID, ChangeType)
+	values
+	(@RecordID, @EmployeeID, @ChangeType)
+END
+GO 
+
+CREATE or alter PROCEDURE spTenantinsert 
+	@FirstName varchar(25),
+	@LastName varchar(25),
+	@Email varchar(100),
+	@Phone varchar(25),
+	@DateUpdated datetime2(2)= null,
+	@EmployeeEmailAddress varchar(100) = '',
+	@ID int output
+	as
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+	select @ID = -1
+	declare @employeeID int = -1
+	select @employeeID = dbo.fnGetEmployeeIDFromEmail(@EmployeeEmailAddress)
+
+	if (@employeeID > 0)
+	   begin
+	           
+
+			   insert into Tenant
+			   (FirstName,LastName,Email,Phone,DateUpdated,AddedByEmployeeID)
+			   values
+			   (@FirstName,@LastName,@Email,@Phone,@DateUpdated,@employeeID)
+
+			select @ID = SCOPE_IDENTITY();
+
+			exec spLogTenantInsert @ID, 'I', @employeeID
+		end
+	else
+	      begin 
+		     declare @ErrorMessage varchar(100)
+			 set @ErrorMessage = 'COULD NOT FIND EmployeeID for email: "' + @EmployeeEmailAddress + '"'
+			 raiserror (@ErrorMessage ,16,1);
+		 end
+
+    return @ID;
+
+    -- Insert statements for procedure here
+
+END
+GO 
+
+CREATE or alter PROCEDURE spPropertyUpdate 
+	@ID int, 
+	@Address varchar(50)=null, 
+	@City varchar(25)=null, 
+	@State varchar(2)=null, 
+	@Zip varchar(10)=null, 
+	@Price money=null, 
+	@StatusTypeID tinyint=null,
+    @Descriptionfull varchar(5000)=null,
+	@descriptionbrief varchar(60)=null,
+	@bathrooms tinyint =null,
+	@bedrooms tinyint=null,
+	@onsiteparking bit=null,
+	@onsitelaundry bit=null,
+	@DateAvailable datetime2(2)=null,
+	@EmployeeEmailAddress varchar(100) = ''
+
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+	
+	declare @EmployeeID int = 0
+	select @EmployeeID = dbo.fnGetEmployeeIDFromEmail(@EmployeeEmailAddress)
+	declare @ChangeType varchar(1) = 'U'
+
+
+    -- Insert statements for procedure here
+	update top(1) Property
+	set  
+	    City = isnull(@City, city),
+		State = isnull(@State,[state]),
+		Zip = isnull(@Zip,zip),
+		Price = isnull(@Price,price),
+		StatusTypeID = isnull(@StatusTypeID,statustypeid),
+		DescriptionFull = isnull(@Descriptionfull,descriptionfull),
+		DescriptionBrief = isnull(@descriptionbrief, DescriptionBrief),
+		Bathrooms = isnull(@bathrooms,Bathrooms),
+		Bedrooms = isnull(@bedrooms,bedrooms),
+		OnsiteParking = isnull(@Onsiteparking,onsiteparking),
+		OnsiteLaundry = isnull(@onsitelaundry,onsitelaundry),
+		DateAvailable = isnull(@DateAvailable,DateAvailable),
+		DateUpdated = GETDATE()
+	where ID = @ID
+			and (AddedByEmployeeID = @EmployeeID)
+
+	if (@@ROWCOUNT > 0) 
+	   begin
+	   if (@StatusTypeID =2)
+	      set @ChangeType = 'D'
+
+		exec spLogPropertyInsert  @ID, @ChangeType, @EmployeeID
+		end
+	if ( @EmployeeID =1)
+	     begin 
+		     declare @ErrorMessage varchar(100)
+			 set @ErrorMessage = 'COULD NOT FIND EmployeeID for email: "' + @EmployeeEmailAddress + '"'
+			 raiserror (@ErrorMessage ,16,1);
+		 end
+END
+go
+-----------------------------------------------------------------------------------------------------
+CREATE or alter PROCEDURE spLeaseUpdate
+    @id int,
+	@PropertyID int =null,
+	@TenantID int = null,
+	@Description varchar(100) =null,
+	@DateLEaseStarted datetime2(2)=null,
+    @DateLeaseEnds datetime2(2)= null,
+	@MonthlyRate money =null,
+    @Notes varchar(1000)= null,
+	@StatusTypeID tinyint =null,
+    @DateUpdated datetime2(2) =null,
+	@EmployeeEmailAddress varchar(100) = ''
+	
+
+as
+BEGIN
+
+	SET NOCOUNT ON;
+
+	
+	declare @EmployeeID int = 0
+	select @EmployeeID = dbo.fnGetEmployeeIDFromEmail(@EmployeeEmailAddress)
+	declare @ChangeType varchar(1) = 'U'
+
+
+	update top(1) Lease
+	set
+		PropertyID = isnull(@propertyID,PropertyID),
+		TenantID = isnull(@tenantid,TenantID),
+		Description = isnull(@description,description),
+		DateLeaseStarted = isnull(@dateleasestarted,dateleasestarted),
+		DateLeaseEnds = isnull(@dateleaseends,dateleaseends),
+		MonthlyRate = isnull(@monthlyrate,monthlyrate),
+		Notes = isnull(@Notes,Notes),
+		StatusTypeID = isnull(@statustypeid,statustypeid),
+		DateAdded = isnull(Getdate(),dateadded),
+		DateUpdated = GETDATE()
+
+	where PropertyID = @Propertyid
+			and (AddedByEmployeeID = @EmployeeID)
+
+	if (@@ROWCOUNT > 0) 
+	   begin
+	   if (@StatusTypeID =2)
+	      set @ChangeType = 'D'
+
+		exec spLogTenantInsert @ID, @ChangeType, @EmployeeID
+		end
+	if ( @EmployeeID =1)
+	     begin 
+		     declare @ErrorMessage varchar(100)
+			 set @ErrorMessage = 'COULD NOT FIND EmployeeID for email: "' + @EmployeeEmailAddress + '"'
+			 raiserror (@ErrorMessage ,16,1);
+		 end
+END
+GO 
+
+CREATE or alter PROCEDURE spTenantUpdate 
+    @ID int,
+	@FirstName varchar(25) = NULL,
+	@LastName varchar(25) =NULL,
+	@Email varchar(100) =NULL,
+	@Phone varchar(25) =NULL,
+	@StatusTypeID tinyint= null,
+	@DateUpdated datetime2(2) = null,
+	@EmployeeEmailAddress varchar(100) = ''
+as
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+	declare @EmployeeID int = 0
+	select @EmployeeID = dbo.fnGetEmployeeIDFromEmail(@EmployeeEmailAddress)
+	declare @ChangeType varchar(1) = 'U'
+
+
+	update top(1) Tenant
+	set
+		FirstName = isnull(@firstname,firstname),
+		LastName = isnull(@lastname,lastname),
+		Email = isnull(@email,email),
+		Phone = isnull(@phone,phone),
+		StatusTypeID = isnull(@statustypeid,statustypeid),
+		DateAdded = isnull(getdate(),dateadded),
+		DateUpdated =  GETDATE()
+		where ID = @ID
+		and (AddedByEmployeeID = @EmployeeID)
+
+	if (@@ROWCOUNT > 0) 
+	   begin
+	   if (@StatusTypeID =2)
+	      set @ChangeType = 'D'
+
+		exec spLogTenantInsert @ID, @ChangeType, @EmployeeID
+		end
+	if ( @EmployeeID =1)
+	     begin 
+		     declare @ErrorMessage varchar(100)
+			 set @ErrorMessage = 'COULD NOT FIND EmployeeID for email: "' + @EmployeeEmailAddress + '"'
+			 raiserror (@ErrorMessage ,16,1);
+		 end
+END
+go
+
+
+
+CREATE or alter PROCEDURE spAppointmentUpdate 
+	 @ID int,
+	 @PropertyID int = NULL,
+	 @TenantID int = null,
+	 @DescriptionPost varchar(100)= null,
+	 @Results varchar(1000) =null,
+	 @DateUpdated datetime2(2) =null
+as
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+	update top(1) Appointment
+	set
+        PropertyID	= isnull(@PropertyID,PropertyID),
+		tenantid = isnull(@tenantid,tenantid),
+		descriptionpost = isnull(@descriptionpost,descriptionpost),
+		results = isnull(@results,results),
+		DateAdded = getdate(),
+		DateUpdated = isnull(@DateUpdated,GETDATE())
+
+	where ID = @ID
+	
+    -- Insert statements for procedure here
+
+END
+GO 
+
+CREATE or alter PROCEDURE spPropertyChangeStatus
+	@ID int, 
+	@StatusTypeID tinyint
+
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+	update top(1) Property
+	set 
+		StatusTypeID = @StatusTypeID,
+		DateUpdated = GETDATE()
+	where ID = @ID
+    -- Insert statements for procedure here
+
+END
+GO
+CREATE or alter PROCEDURE spPropertyFlagInactive
+    @id int
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	update top(1) Property
+	set 
+		StatusTypeID = 2,
+		DateUpdated = GETDATE()
+	where ID = @ID
+	
+    -- Insert statements for procedure here
+
+END
+GO 
+CREATE or alter PROCEDURE spLeaseFlagInactive
+    @id int
+AS
+BEGIN
+
+	update top(1) Lease
+	set 
+		StatusTypeID = 2,
+		DateUpdated = GETDATE()
+	where ID = @ID
+
+END
+GO 
+
+CREATE or alter PROCEDURE spAppointmentFlagInactive
+    @id int
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	update top(1) Appointment
+	set 
+		AppStatusID = 2,
+		DateUpdated = GETDATE()
+	where ID = @ID
+	
+    -- Insert statements for procedure here
+
+END
+GO
+
+CREATE or alter PROCEDURE spTenantFlagInactive
+    @id int
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	update top(1) Tenant
+	set 
+		StatusTypeID = 2,
+		DateUpdated = GETDATE()
+	where ID = @ID
+	
+    -- Insert statements for procedure here
+
+END
+GO
+--------------------------------------------------------------------------------------------------------------------
+
+CREATE or alter PROCEDURE spPropertyList 
+	@StatusTypeID tinyint =1
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+	select Property.ID, DateCreated, DateUpdated,StatusTypeID as RentalStatus, Price, Address, City, State, Zip, Property.DescriptionFull from Property
+	join StatusType on Property.StatusTypeID = StatusType.ID 
+	where StatusTypeID = @StatusTypeID
+	
+    -- Insert statements for procedure here
+
+END
+GO
+
+CREATE or alter PROCEDURE spPropertyListByLeaseEnds
+       
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+	  select Property.ID, DateAvailable, Address, Zip, DescriptionBrief, Price 
+	  from Property
+	  order by  DateAvailable desc, Price desc
+    -- Insert statements for procedure here
+
+END
+GO
+
+CREATE or alter PROCEDURE spPropertyListByNumberOfBathRooms 
+	
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+	select Property.ID, BathRooms, Address, Zip, DescriptionBrief, DateAvailable, Price 
+	from Property
+    order by BathRooms desc	
+    -- Insert statements for procedure here
+
+END
+GO
+
+CREATE or alter PROCEDURE spPropertyListByNumberOfBedRooms
+     
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+	select Property.ID, BedRooms, Address, Zip, DescriptionBrief, DateAvailable, Price
+	from Property
+	order by BedRooms desc
+	
+    -- Insert statements for procedure here
+
+END
+GO
+
+CREATE or alter PROCEDURE spTenantList 
+  @statustypeID int =1
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+	select ID,FirstName,LastName,Email,Phone,StatusTypeID as Description, DateAdded, DateUpdated
+	from Tenant
+	where @statustypeID = StatusTypeID
+	order by FirstName,LastName 
+	
+    -- Insert statements for procedure here
+
+END
+GO --maybe good 
+
+CREATE or alter PROCEDURE spLeaseList
+     @statustypeid int =1
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+
+	SELECT 
+	  l.ID as 'LeaseID',
+	  rl.ID as 'RentalID',
+	  rr.ID as 'RenterID',
+	  l.Description as 'LeaseDescription', 
+	  rl.Address, rl.City, rl.Zip,
+	  rr.FirstName ,  rr.LastName , rr.Phone,
+	  convert(varchar(11), l.DateLeaseStarted, 106) as 'LeaseStarts',
+	  convert(varchar(11), l.DateLeaseEnds, 106) as 'LeaseEnds',
+	  leaseStatus.Description as 'LeaseStatus',
+	  rentalStatus.Description as 'RentalStatus',
+	  renterStatus.Description as 'RenterStatus'
+	from Lease l
+	join Property rl on l.PropertyID = rl.ID
+	join Tenant rr on l.TenantID = rr.ID
+	join StatusType leaseStatus on l.StatusTypeID = leaseStatus.ID
+	join StatusType renterStatus on rr.StatusTypeID = renterStatus.ID
+	join StatusType rentalStatus on rl.StatusTypeID = rentalStatus.ID
+
+	where l.StatusTypeID = @StatusTypeID
+	order by rr.LastName, rr.FirstName
+	
+    -- Insert statements for procedure here
+
+END
+GO 
+
+	create or alter function fnDaysFromToday
+	(
+	     @inputDate datetime2(2)
+	)
+	returns int
+	as
+	begin
+	declare @currentDate as datetime2;
+	select @currentDate = GETDATE();
+	return DAtediff(DAY,@currentDate,@inputDate);
+
+	end
+	go
+
+	create or alter function dbo.fnConvertFromMonthlyToYearlyRate
+	(
+	     @monthlyRate int
+	)
+	returns int
+	as
+	begin
+	declare @currentRate as money;
+	select @currentRate = @monthlyRate;
+	return @currentRate * 12 ;
+
+	end
+	go
+
+
+	create or alter function dbo.fnLeaseThatExpiresInDays
+	(
+	    @numberOfDays datetime2
+	)
+	returns table
+	as
+	return
+	select * from Lease
+	where datediff(day,DateUpdated, @numberOfDays) <= 0
+
+	go
+
+CREATE or alter PROCEDURE spAppointmentSelect
+	@AppointmentID int 
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+	select  * from Appointment
+	where Appointment.ID = @AppointmentID
+	
+    -- Insert statements for procedure here
+
+END
+GO
+
+CREATE or alter PROCEDURE spAppointmentList
+	@AppStatusID tinyint 
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+	select  appointment.id as ID,PropertyID,TenantID,AppStatusID, AppointmentResultID,DescriptionPost,AppointmentResultType.Results, DateAdded,DateUpdated  from Appointment
+	join AppointmentResultType on  Appointment.AppointmentResultID = AppointmentResultType.ID
+	where Appointment.AppStatusID = @AppStatusID
+	
+    -- Insert statements for procedure here
+
+END
+GO
+
+--exec    spAppointmentUpdate 5,null,null,null,null,null,null
+--exec    spAppointmentFlagInactive 9 -- Flag one appointment as inactive
+
+--   exec    spAppointmentList 1  -- Show Active Appointments
+--   exec    spAppointmentList 2 -- Show Deleted Appointments 
+
+
+--select * from tenant
+
+--select * from property
+
+--select * from lease
+--exec spLeaseList
+exec spLogLeaseInsert 5,12,'U'
+exec spLogLeaseInsert 17,114,'D'
+exec spLogLeaseInsert 18,14,'U'
+exec spLogLeaseInsert 19,116,'U'
+exec spLogLeaseInsert 20,17,'D'
+
+exec spLogPropertyInsert 6,13,'U'
+exec spLogPropertyInsert 13,16,'D'
+exec spLogPropertyInsert 14,18,'U'
+exec spLogPropertyInsert 15,19,'U'
+exec spLogPropertyInsert 16,20,'D'
+
+exec spLogTenantInsert 8,15,'D'
+exec spLogTenantInsert 9,21,'D'
+exec spLogTenantInsert 10,2,'D'
+exec spLogTenantInsert 11,15,'D'
+exec spLogTenantInsert 12,15,'U'
+
+--exec spTenantinsert 'brad','bobs','bb@goog.com','23455343',null,null,'my@school.email'
+select * from Employee
+
+go
+
+
+
+Select * from logTenant
+Select * from logProperty
+Select * from logLease
+
+
+
+
